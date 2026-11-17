@@ -53,7 +53,7 @@ services:
       - backend
 
   db:
-    image: mariadb:11.8.9
+    image: mariadb:13.0.2
     restart: unless-stopped
     command: ["--transaction-isolation=READ-COMMITTED", "--log-bin=binlog", "--binlog-format=ROW", "--max-allowed-packet=128M"]
     environment:
