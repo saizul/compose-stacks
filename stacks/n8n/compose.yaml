@@ -39,7 +39,7 @@ x-node-healthcheck: &node-healthcheck
 
 services:
   n8n:
-    image: n8nio/n8n:2.47.7
+    image: n8nio/n8n:2.48.4
     restart: unless-stopped
     environment: *n8n-env
     ports:
@@ -55,7 +55,7 @@ services:
     healthcheck: *node-healthcheck
 
   n8n-worker:
-    image: n8nio/n8n:2.47.7
+    image: n8nio/n8n:2.48.4
     profiles: ["queue"]
     restart: unless-stopped
     command: worker
