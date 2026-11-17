@@ -22,7 +22,7 @@ services:
       start_period: 40s
 
   adminer:
-    image: adminer:5.5.1
+    image: adminer:6.2.0
     restart: unless-stopped
     depends_on:
       mysql:
