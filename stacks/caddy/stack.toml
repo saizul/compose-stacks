@@ -1,0 +1,56 @@
+name = "caddy"
+description = "Caddy 2 reverse proxy with automatic HTTPS, HTTP/3, compression and security headers"
+category = "proxy"
+tags = ["caddy", "reverse-proxy", "https", "tls", "http3", "web-server"]
+upstream_docs = "https://caddyserver.com/docs/"
+maintained_by = ["saizul"]
+notes = "Point DNS for SITE_DOMAIN at the server and open ports 80, 443/tcp and 443/udp before the first start."
+
+[[ports]]
+service = "caddy"
+host = 80
+container = 80
+bind = "0.0.0.0"
+description = "HTTP (ACME challenge and redirect)"
+
+[[ports]]
+service = "caddy"
+host = 443
+container = 443
+bind = "0.0.0.0"
+description = "HTTPS"
+
+[[ports]]
+service = "caddy"
+host = 443
+container = 443
+bind = "0.0.0.0"
+protocol = "udp"
+description = "HTTP/3 (QUIC)"
+
+[[volumes]]
+name = "caddy_data"
+description = "Certificates and ACME account keys (back this up)"
+
+[[volumes]]
+name = "caddy_config"
+description = "Autosaved runtime config"
+
+[healthcheck]
+services = ["caddy"]
+
+[env.SITE_DOMAIN]
+description = "Domain to serve"
+default = "localhost"
+
+[env.UPSTREAM]
+description = "Backend address for reverse_proxy"
+default = "host.docker.internal:8080"
+
+[env.ACME_EMAIL]
+description = "E-mail for certificate notices"
+default = ""
+
+[env.PUBLIC_BIND_ADDRESS]
+description = "Interface for ports 80 and 443"
+default = "0.0.0.0"

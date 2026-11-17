@@ -1,0 +1,67 @@
+name = "ollama-open-webui"
+description = "Run open-weight language models locally with Ollama and chat with them in Open WebUI"
+category = "ai"
+tags = ["ollama", "open-webui", "llm", "local-ai", "chat", "gpu"]
+upstream_docs = "https://docs.openwebui.com/getting-started/quick-start/"
+maintained_by = ["saizul"]
+notes = "Pull a model first, for example: docker compose exec ollama ollama pull llama3.2"
+
+[[ports]]
+service = "ollama"
+host = 11434
+container = 11434
+description = "Ollama API"
+
+[[ports]]
+service = "open-webui"
+host = 3080
+container = 8080
+description = "Open WebUI"
+
+[[volumes]]
+name = "ollama_data"
+description = "Downloaded models (can be many GB)"
+
+[[volumes]]
+name = "open_webui_data"
+description = "Users, chats, settings, uploaded documents"
+
+[healthcheck]
+services = ["ollama", "open-webui"]
+
+[env.BIND_ADDRESS]
+description = "Interface for published ports"
+default = "127.0.0.1"
+
+[env.OLLAMA_PORT]
+description = "Host port for the Ollama API"
+default = "11434"
+
+[env.OPEN_WEBUI_PORT]
+description = "Host port for Open WebUI"
+default = "3080"
+
+[env.WEBUI_URL]
+description = "Public URL of Open WebUI"
+default = "http://localhost:3080"
+
+[env.WEBUI_SECRET_KEY]
+description = "Session signing key"
+secret = true
+generate = "hex:32"
+
+[env.ENABLE_SIGNUP]
+description = "Allow new accounts"
+default = "true"
+
+[env.DEFAULT_USER_ROLE]
+description = "Role for new accounts: pending, user or admin"
+default = "pending"
+
+[env.OLLAMA_KEEP_ALIVE]
+description = "Time a model stays loaded after use"
+default = "5m"
+
+[env.OLLAMA_NUM_PARALLEL]
+description = "Parallel requests per model"
+default = "1"

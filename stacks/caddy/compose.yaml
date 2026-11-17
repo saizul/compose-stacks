@@ -1,0 +1,32 @@
+# Caddy 2: web server and reverse proxy with automatic HTTPS.
+
+services:
+  caddy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+      UPSTREAM: ${UPSTREAM:-host.docker.internal:8080}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:80:80"
+      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:443:443"
+      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_add:
+      - NET_ADMIN
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:2019/config/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  caddy_data:
+  caddy_config:

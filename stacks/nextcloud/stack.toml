@@ -1,0 +1,87 @@
+name = "nextcloud"
+description = "Nextcloud file sync and collaboration with MariaDB, Redis locking and a cron container"
+category = "productivity"
+tags = ["nextcloud", "files", "sync", "webdav", "calendar", "mariadb", "redis"]
+upstream_docs = "https://github.com/nextcloud/docker"
+maintained_by = ["saizul"]
+notes = "The admin account is created automatically from NEXTCLOUD_ADMIN_USER and NEXTCLOUD_ADMIN_PASSWORD on first start."
+
+[[ports]]
+service = "nextcloud"
+host = 8082
+container = 80
+description = "Nextcloud web UI and WebDAV"
+
+[[volumes]]
+name = "nextcloud_data"
+description = "Nextcloud code, config, apps and user files"
+
+[[volumes]]
+name = "db_data"
+description = "MariaDB data directory"
+
+[healthcheck]
+services = ["nextcloud", "db", "redis"]
+
+[healthcheck.exempt]
+cron = "Runs busybox crond only; there is no endpoint to probe and the restart policy covers crashes"
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.NEXTCLOUD_PORT]
+description = "Host port"
+default = "8082"
+
+[env.NEXTCLOUD_TRUSTED_DOMAINS]
+description = "Space-separated host names allowed to serve Nextcloud"
+default = "localhost"
+
+[env.OVERWRITEPROTOCOL]
+description = "Protocol users see (https behind a TLS proxy)"
+default = "http"
+
+[env.TRUSTED_PROXIES]
+description = "Reverse proxy networks Nextcloud trusts for X-Forwarded-For"
+default = "172.16.0.0/12 192.168.0.0/16 10.0.0.0/8"
+
+[env.NEXTCLOUD_ADMIN_USER]
+description = "Admin user created on first start"
+default = "admin"
+
+[env.NEXTCLOUD_ADMIN_PASSWORD]
+description = "Admin password"
+secret = true
+generate = "alnum:24"
+
+[env.MYSQL_DATABASE]
+description = "Database name"
+default = "nextcloud"
+
+[env.MYSQL_USER]
+description = "Database user"
+default = "nextcloud"
+
+[env.MYSQL_PASSWORD]
+description = "Database password"
+secret = true
+generate = "hex:24"
+
+[env.MARIADB_ROOT_PASSWORD]
+description = "MariaDB root password"
+secret = true
+generate = "hex:24"
+
+[env.REDIS_PASSWORD]
+description = "Redis password"
+secret = true
+generate = "hex:24"
+
+[env.PHP_MEMORY_LIMIT]
+description = "PHP memory limit"
+default = "1024M"
+
+[env.PHP_UPLOAD_LIMIT]
+description = "Maximum upload size"
+default = "16G"

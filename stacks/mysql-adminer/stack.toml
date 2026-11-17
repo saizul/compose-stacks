@@ -1,0 +1,59 @@
+name = "mysql-adminer"
+description = "MySQL 8.4 LTS with utf8mb4 defaults and the Adminer database UI"
+category = "database"
+tags = ["mysql", "adminer", "sql", "database"]
+upstream_docs = "https://hub.docker.com/_/mysql"
+maintained_by = ["saizul"]
+
+[[ports]]
+service = "mysql"
+host = 3306
+container = 3306
+description = "MySQL protocol"
+
+[[ports]]
+service = "adminer"
+host = 8081
+container = 8080
+description = "Adminer web UI"
+
+[[volumes]]
+name = "mysql_data"
+description = "MySQL data directory"
+
+[healthcheck]
+services = ["mysql", "adminer"]
+
+[env.BIND_ADDRESS]
+description = "Interface for published ports"
+default = "127.0.0.1"
+
+[env.MYSQL_PORT]
+description = "Host port for MySQL"
+default = "3306"
+
+[env.ADMINER_PORT]
+description = "Host port for Adminer"
+default = "8081"
+
+[env.MYSQL_DATABASE]
+description = "Database created on first start"
+default = "app"
+
+[env.MYSQL_USER]
+description = "Application user"
+default = "app"
+
+[env.MYSQL_PASSWORD]
+description = "Application user password"
+secret = true
+generate = "hex:24"
+
+[env.MYSQL_ROOT_PASSWORD]
+description = "Root password"
+secret = true
+generate = "hex:24"
+
+[env.ADMINER_DESIGN]
+description = "Adminer theme name"
+default = "pepa-linha"

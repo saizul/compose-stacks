@@ -1,0 +1,64 @@
+name = "postgres-pgadmin"
+description = "PostgreSQL 18 with pgAdmin 4, pre-registered server and SCRAM authentication"
+category = "database"
+tags = ["postgres", "postgresql", "pgadmin", "sql", "database"]
+upstream_docs = "https://hub.docker.com/_/postgres"
+maintained_by = ["saizul"]
+notes = "Change PGADMIN_EMAIL to your address. If you change POSTGRES_USER, update servers.json too."
+
+[[ports]]
+service = "postgres"
+host = 5432
+container = 5432
+description = "PostgreSQL"
+
+[[ports]]
+service = "pgadmin"
+host = 5050
+container = 80
+description = "pgAdmin web UI"
+
+[[volumes]]
+name = "postgres_data"
+description = "PostgreSQL data directory"
+
+[[volumes]]
+name = "pgadmin_data"
+description = "pgAdmin settings and saved passwords"
+
+[healthcheck]
+services = ["postgres", "pgadmin"]
+
+[env.BIND_ADDRESS]
+description = "Interface for published ports"
+default = "127.0.0.1"
+
+[env.POSTGRES_PORT]
+description = "Host port for PostgreSQL"
+default = "5432"
+
+[env.PGADMIN_PORT]
+description = "Host port for pgAdmin"
+default = "5050"
+
+[env.POSTGRES_DB]
+description = "Database created on first start"
+default = "app"
+
+[env.POSTGRES_USER]
+description = "Superuser name"
+default = "postgres"
+
+[env.POSTGRES_PASSWORD]
+description = "Superuser password"
+secret = true
+generate = "hex:24"
+
+[env.PGADMIN_EMAIL]
+description = "pgAdmin login e-mail"
+default = "admin@example.com"
+
+[env.PGADMIN_PASSWORD]
+description = "pgAdmin login password"
+secret = true
+generate = "alnum:24"

@@ -1,0 +1,67 @@
+name = "wordpress"
+description = "WordPress on Apache and PHP 8.4 with MariaDB and a Redis object cache"
+category = "cms"
+tags = ["wordpress", "php", "mariadb", "redis", "blog", "website"]
+upstream_docs = "https://hub.docker.com/_/wordpress"
+maintained_by = ["saizul"]
+notes = "Open the site once to run the installer, then install the Redis Object Cache plugin and enable it."
+
+[[ports]]
+service = "wordpress"
+host = 8080
+container = 80
+description = "WordPress HTTP (put a TLS reverse proxy in front)"
+
+[[volumes]]
+name = "wordpress_data"
+description = "WordPress core, themes, plugins and uploads"
+
+[[volumes]]
+name = "db_data"
+description = "MariaDB data directory"
+
+[[volumes]]
+name = "redis_data"
+description = "Redis cache data (safe to lose)"
+
+[healthcheck]
+services = ["wordpress", "db", "redis"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.WORDPRESS_PORT]
+description = "Host port for WordPress"
+default = "8080"
+
+[env.WORDPRESS_DB_NAME]
+description = "Database name"
+default = "wordpress"
+
+[env.WORDPRESS_DB_USER]
+description = "Database user"
+default = "wordpress"
+
+[env.WORDPRESS_TABLE_PREFIX]
+description = "Table prefix"
+default = "wp_"
+
+[env.WORDPRESS_DB_PASSWORD]
+description = "Password of the WordPress database user"
+secret = true
+generate = "hex:24"
+
+[env.MARIADB_ROOT_PASSWORD]
+description = "MariaDB root password (only needed for maintenance)"
+secret = true
+generate = "hex:24"
+
+[env.REDIS_PASSWORD]
+description = "Password for the Redis object cache"
+secret = true
+generate = "hex:24"
+
+[env.REDIS_MAXMEMORY]
+description = "Maximum memory Redis may use before evicting keys"
+default = "256mb"

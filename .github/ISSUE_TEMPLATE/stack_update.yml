@@ -1,0 +1,19 @@
+name: Stack update
+description: A pinned image is outdated or a stack should change
+title: "[update] "
+labels: ["stack update", "good first issue"]
+body:
+  - type: input
+    id: stack
+    attributes:
+      label: Stack
+      placeholder: "grafana-prometheus"
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What should change?
+      placeholder: "grafana/grafana 13.3.1 -> 13.4.0 (release notes: https://...)"
+    validations:
+      required: true

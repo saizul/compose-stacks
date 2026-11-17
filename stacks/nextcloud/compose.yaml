@@ -1,0 +1,96 @@
+# Nextcloud (Apache) with MariaDB, Redis file locking and a background-jobs container.
+
+x-nextcloud-env: &nextcloud-env
+  MYSQL_HOST: db
+  MYSQL_DATABASE: ${MYSQL_DATABASE:-nextcloud}
+  MYSQL_USER: ${MYSQL_USER:-nextcloud}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+  REDIS_HOST: redis
+  REDIS_HOST_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+  NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER:-admin}
+  NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD:?set NEXTCLOUD_ADMIN_PASSWORD in .env}
+  NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS:-localhost}
+  OVERWRITEPROTOCOL: ${OVERWRITEPROTOCOL:-http}
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172.16.0.0/12 192.168.0.0/16 10.0.0.0/8}
+  PHP_MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-1024M}
+  PHP_UPLOAD_LIMIT: ${PHP_UPLOAD_LIMIT:-16G}
+
+services:
+  nextcloud:
+    image: nextcloud:35.0.3-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *nextcloud-env
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${NEXTCLOUD_PORT:-8082}:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+    networks:
+      - default
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://127.0.0.1/status.php || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  cron:
+    image: nextcloud:35.0.3-apache
+    restart: unless-stopped
+    entrypoint: /cron.sh
+    depends_on:
+      nextcloud:
+        condition: service_healthy
+    environment: *nextcloud-env
+    volumes:
+      - nextcloud_data:/var/www/html
+    networks:
+      - backend
+
+  db:
+    image: mariadb:11.8.9
+    restart: unless-stopped
+    command: ["--transaction-isolation=READ-COMMITTED", "--log-bin=binlog", "--binlog-format=ROW", "--max-allowed-packet=128M"]
+    environment:
+      MARIADB_DATABASE: ${MYSQL_DATABASE:-nextcloud}
+      MARIADB_USER: ${MYSQL_USER:-nextcloud}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD in .env}
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:8.8.4-alpine
+    restart: unless-stopped
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  backend:
+    internal: true
+
+volumes:
+  nextcloud_data:
+  db_data:

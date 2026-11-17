@@ -1,0 +1,32 @@
+name = "dockge"
+description = "Dockge web UI to create, edit, start and update Docker Compose stacks on a host"
+category = "management"
+tags = ["dockge", "docker", "compose", "ui", "portainer-alternative"]
+upstream_docs = "https://github.com/louislam/dockge"
+maintained_by = ["saizul"]
+notes = "Dockge controls Docker through the socket, which equals root access to the host. Keep it on 127.0.0.1."
+
+[[ports]]
+service = "dockge"
+host = 5001
+container = 5001
+description = "Web UI"
+
+[[volumes]]
+name = "dockge_data"
+description = "Dockge settings and users"
+
+[healthcheck]
+services = ["dockge"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.DOCKGE_PORT]
+description = "Host port"
+default = "5001"
+
+[env.DOCKGE_STACKS_DIR]
+description = "Absolute host path where Dockge stores stacks"
+default = "/opt/stacks"

@@ -1,0 +1,32 @@
+name = "uptime-kuma"
+description = "Uptime Kuma 2 for HTTP, TCP, DNS and keyword monitoring with status pages and alerts"
+category = "monitoring"
+tags = ["uptime-kuma", "uptime", "status-page", "monitoring", "alerts"]
+upstream_docs = "https://github.com/louislam/uptime-kuma/wiki"
+maintained_by = ["saizul"]
+notes = "Create the admin account on first visit. Do not store the data volume on NFS (SQLite needs local storage)."
+
+[[ports]]
+service = "uptime-kuma"
+host = 3001
+container = 3001
+description = "Dashboard and status pages"
+
+[[volumes]]
+name = "uptime_kuma_data"
+description = "SQLite database, uploads and settings"
+
+[healthcheck]
+services = ["uptime-kuma"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.UPTIME_KUMA_PORT]
+description = "Host port for the dashboard"
+default = "3001"
+
+[env.TZ]
+description = "Time zone"
+default = "UTC"

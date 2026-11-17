@@ -1,0 +1,50 @@
+name = "umami"
+description = "Umami cookie-free, GDPR-friendly web analytics with PostgreSQL"
+category = "analytics"
+tags = ["umami", "analytics", "privacy", "google-analytics-alternative", "postgres"]
+upstream_docs = "https://umami.is/docs/install"
+maintained_by = ["saizul"]
+notes = "Log in with admin / umami and change the password immediately."
+
+[[ports]]
+service = "umami"
+host = 3002
+container = 3000
+description = "Dashboard and tracker endpoint"
+
+[[volumes]]
+name = "db_data"
+description = "PostgreSQL data"
+
+[healthcheck]
+services = ["umami", "db"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.UMAMI_PORT]
+description = "Host port"
+default = "3002"
+
+[env.POSTGRES_DB]
+description = "Database name"
+default = "umami"
+
+[env.POSTGRES_USER]
+description = "Database user"
+default = "umami"
+
+[env.POSTGRES_PASSWORD]
+description = "Database password (URL-safe)"
+secret = true
+generate = "hex:24"
+
+[env.APP_SECRET]
+description = "Secret used to sign sessions and tokens"
+secret = true
+generate = "hex:32"
+
+[env.TRACKER_SCRIPT_NAME]
+description = "File name of the tracking script"
+default = "script.js"

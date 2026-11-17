@@ -1,0 +1,24 @@
+# Dockge: a web UI to manage compose.yaml stacks on this host.
+# The stacks folder must use the same path on the host and in the container.
+
+services:
+  dockge:
+    image: louislam/dockge:1.5.0
+    restart: unless-stopped
+    environment:
+      DOCKGE_STACKS_DIR: ${DOCKGE_STACKS_DIR:-/opt/stacks}
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${DOCKGE_PORT:-5001}:5001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dockge_data:/app/data
+      - ${DOCKGE_STACKS_DIR:-/opt/stacks}:${DOCKGE_STACKS_DIR:-/opt/stacks}
+    healthcheck:
+      test: ["CMD", "extra/healthcheck"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  dockge_data:

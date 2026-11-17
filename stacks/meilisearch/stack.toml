@@ -1,0 +1,41 @@
+name = "meilisearch"
+description = "Meilisearch typo-tolerant search engine in production mode with a master key"
+category = "search"
+tags = ["meilisearch", "search", "full-text-search", "api", "algolia-alternative"]
+upstream_docs = "https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch"
+maintained_by = ["saizul"]
+notes = "Create scoped search and admin keys with the master key; do not ship the master key to clients."
+
+[[ports]]
+service = "meilisearch"
+host = 7700
+container = 7700
+description = "REST API"
+
+[[volumes]]
+name = "meili_data"
+description = "Indexes, tasks and dumps"
+
+[healthcheck]
+services = ["meilisearch"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.MEILI_PORT]
+description = "Host port"
+default = "7700"
+
+[env.MEILI_MASTER_KEY]
+description = "Master key (required in production mode)"
+secret = true
+generate = "hex:32"
+
+[env.MEILI_MAX_INDEXING_MEMORY]
+description = "Memory budget for indexing"
+default = "1GiB"
+
+[env.MEILI_LOG_LEVEL]
+description = "ERROR, WARN, INFO, DEBUG or TRACE"
+default = "INFO"

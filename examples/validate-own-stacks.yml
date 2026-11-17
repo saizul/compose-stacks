@@ -1,0 +1,19 @@
+# .github/workflows/validate-stacks.yml in your own repository.
+# Validates a folder of stacks that follows the compose-stacks layout.
+name: Validate stacks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install git+https://github.com/saizul/compose-stacks
+      - run: compose-stacks --stacks-dir ./stacks validate --all --strict --require-docker --format github

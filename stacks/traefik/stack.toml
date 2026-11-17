@@ -1,0 +1,77 @@
+name = "traefik"
+description = "Traefik v3 reverse proxy with Docker labels, HTTP to HTTPS redirect and Let's Encrypt"
+category = "proxy"
+tags = ["traefik", "reverse-proxy", "letsencrypt", "tls", "https", "acme"]
+upstream_docs = "https://doc.traefik.io/traefik/"
+maintained_by = ["saizul"]
+notes = "Set ACME_EMAIL, open ports 80 and 443 in the firewall and point DNS at the server before the first start."
+
+[[ports]]
+service = "traefik"
+host = 80
+container = 80
+bind = "0.0.0.0"
+description = "HTTP (ACME challenge and redirect to HTTPS)"
+
+[[ports]]
+service = "traefik"
+host = 443
+container = 443
+bind = "0.0.0.0"
+description = "HTTPS"
+
+[[ports]]
+service = "traefik"
+host = 8080
+container = 8080
+description = "Dashboard and API (local only)"
+
+[[volumes]]
+name = "letsencrypt"
+description = "acme.json with certificates and the ACME account key"
+
+[healthcheck]
+services = ["traefik"]
+
+[healthcheck.exempt]
+whoami = "The whoami image is built from scratch and has no shell or HTTP client; it is a demo service"
+
+[env.ACME_EMAIL]
+description = "E-mail address for the Let's Encrypt account"
+required = true
+
+[env.ACME_CA_SERVER]
+description = "ACME directory URL (switch to staging while testing)"
+default = "https://acme-v02.api.letsencrypt.org/directory"
+
+[env.PUBLIC_BIND_ADDRESS]
+description = "Interface for ports 80 and 443"
+default = "0.0.0.0"
+
+[env.DASHBOARD_BIND_ADDRESS]
+description = "Interface for the dashboard"
+default = "127.0.0.1"
+
+[env.DASHBOARD_PORT]
+description = "Host port for the dashboard"
+default = "8080"
+
+[env.TRAEFIK_NETWORK]
+description = "Name of the shared proxy network"
+default = "proxy"
+
+[env.TRAEFIK_LOG_LEVEL]
+description = "DEBUG, INFO, WARN or ERROR"
+default = "INFO"
+
+[env.TRAEFIK_ACCESS_LOG]
+description = "Write access logs to stdout"
+default = "false"
+
+[env.COMPOSE_PROFILES]
+description = "Set to demo to start the whoami test service"
+default = ""
+
+[env.WHOAMI_HOST]
+description = "Host name for the demo service"
+default = "whoami.example.com"

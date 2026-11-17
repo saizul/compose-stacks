@@ -1,0 +1,99 @@
+name = "n8n"
+description = "n8n workflow automation with PostgreSQL and optional Redis queue mode with workers"
+category = "automation"
+tags = ["n8n", "automation", "workflows", "postgres", "redis", "no-code"]
+upstream_docs = "https://docs.n8n.io/hosting/installation/docker/"
+maintained_by = ["saizul"]
+notes = "Back up N8N_ENCRYPTION_KEY together with the database; credentials cannot be decrypted without it."
+
+[[ports]]
+service = "n8n"
+host = 5678
+container = 5678
+description = "Editor UI, REST API and webhooks"
+
+[[volumes]]
+name = "n8n_data"
+description = "n8n settings, binary data and custom nodes"
+
+[[volumes]]
+name = "postgres_data"
+description = "PostgreSQL data (workflows, credentials, executions)"
+
+[[volumes]]
+name = "redis_data"
+description = "Redis queue data (queue mode only)"
+
+[healthcheck]
+services = ["n8n", "n8n-worker", "postgres", "redis"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.N8N_PORT]
+description = "Host port for the editor"
+default = "5678"
+
+[env.N8N_HOST]
+description = "Public host name of n8n"
+default = "localhost"
+
+[env.N8N_PROTOCOL]
+description = "http or https as seen by users"
+default = "http"
+
+[env.WEBHOOK_URL]
+description = "Public base URL for webhooks, with trailing slash"
+default = "http://localhost:5678/"
+
+[env.N8N_SECURE_COOKIE]
+description = "Set to true when n8n is served over HTTPS"
+default = "false"
+
+[env.N8N_PROXY_HOPS]
+description = "Number of reverse proxies in front of n8n"
+default = "1"
+
+[env.TZ]
+description = "Time zone for schedules and logs"
+default = "UTC"
+
+[env.POSTGRES_DB]
+description = "Database name"
+default = "n8n"
+
+[env.POSTGRES_USER]
+description = "Database user"
+default = "n8n"
+
+[env.POSTGRES_PASSWORD]
+description = "Database password"
+secret = true
+generate = "hex:24"
+
+[env.N8N_ENCRYPTION_KEY]
+description = "Key that encrypts saved credentials"
+secret = true
+generate = "hex:32"
+
+[env.EXECUTIONS_MODE]
+description = "regular or queue"
+default = "regular"
+
+[env.COMPOSE_PROFILES]
+description = "Set to queue to start Redis and the worker"
+default = ""
+
+[env.OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS]
+description = "In queue mode, also run manual executions on workers"
+default = "false"
+
+[env.REDIS_PASSWORD]
+description = "Redis password (queue mode)"
+secret = true
+generate = "hex:24"
+
+[env.EXECUTIONS_DATA_MAX_AGE]
+description = "Hours of execution history to keep"
+default = "336"

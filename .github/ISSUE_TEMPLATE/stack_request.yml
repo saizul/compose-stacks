@@ -1,0 +1,53 @@
+name: Stack request
+description: Suggest a new self-hosted app for the library
+title: "[stack] "
+labels: ["stack request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! Check the [stack list](https://github.com/saizul/compose-stacks#stacks) first.
+        If you would like to build it yourself, see "Add a new stack" in CONTRIBUTING.md and say so below.
+  - type: input
+    id: name
+    attributes:
+      label: Application
+      description: Name and homepage of the software
+      placeholder: "Paperless-ngx - https://docs.paperless-ngx.com"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it useful?
+      description: Who would use this stack and for what?
+    validations:
+      required: true
+  - type: input
+    id: image
+    attributes:
+      label: Official image
+      description: Where is the official container image published?
+      placeholder: "ghcr.io/paperless-ngx/paperless-ngx"
+  - type: input
+    id: docs
+    attributes:
+      label: Upstream Docker / Compose docs
+      placeholder: "https://..."
+  - type: textarea
+    id: services
+    attributes:
+      label: Services needed
+      description: Databases, caches, workers, etc.
+      placeholder: "app, postgres, redis"
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options: [ai, analytics, automation, cache, cms, database, devtools, email, management, monitoring, productivity, proxy, search, security, storage]
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to open the pull request for this stack myself

@@ -1,0 +1,16 @@
+# compose.override.yaml for any stack, routed through the traefik stack.
+# Save it next to the stack's compose.yaml and run `docker compose up -d`.
+# Replace "uptime-kuma", the host name and the port with your service.
+
+services:
+  uptime-kuma:
+    networks: [default, proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.status.rule=Host(`status.example.com`)
+      - traefik.http.routers.status.entrypoints=websecure
+      - traefik.http.services.status.loadbalancer.server.port=3001
+
+networks:
+  proxy:
+    external: true

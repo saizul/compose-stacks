@@ -1,0 +1,76 @@
+name = "gitea"
+description = "Gitea self-hosted Git service (rootless image) with PostgreSQL and SSH on port 2222"
+category = "devtools"
+tags = ["gitea", "git", "code-hosting", "ci", "postgres"]
+upstream_docs = "https://docs.gitea.com/installation/install-with-docker-rootless"
+maintained_by = ["saizul"]
+notes = "Finish the web installer and create the admin account there. Registration is disabled by default."
+
+[[ports]]
+service = "gitea"
+host = 3000
+container = 3000
+description = "Web UI and Git over HTTP"
+
+[[ports]]
+service = "gitea"
+host = 2222
+container = 2222
+bind = "0.0.0.0"
+description = "Git over SSH (public on purpose)"
+
+[[volumes]]
+name = "gitea_data"
+description = "Repositories, LFS, attachments"
+
+[[volumes]]
+name = "gitea_config"
+description = "app.ini"
+
+[[volumes]]
+name = "db_data"
+description = "PostgreSQL data"
+
+[healthcheck]
+services = ["gitea", "db"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the HTTP port"
+default = "127.0.0.1"
+
+[env.GITEA_HTTP_PORT]
+description = "Host port for the web UI"
+default = "3000"
+
+[env.SSH_BIND_ADDRESS]
+description = "Interface for Git over SSH"
+default = "0.0.0.0"
+
+[env.GITEA_SSH_PORT]
+description = "Host port for Git over SSH"
+default = "2222"
+
+[env.GITEA_DOMAIN]
+description = "Public host name"
+default = "localhost"
+
+[env.GITEA_ROOT_URL]
+description = "Public base URL with trailing slash"
+default = "http://localhost:3000/"
+
+[env.GITEA_DISABLE_REGISTRATION]
+description = "Disable self sign-up"
+default = "true"
+
+[env.POSTGRES_DB]
+description = "Database name"
+default = "gitea"
+
+[env.POSTGRES_USER]
+description = "Database user"
+default = "gitea"
+
+[env.POSTGRES_PASSWORD]
+description = "Database password"
+secret = true
+generate = "hex:24"

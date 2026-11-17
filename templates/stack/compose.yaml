@@ -1,0 +1,27 @@
+# __NAME__ - replace this comment with one line about what the stack runs.
+# Rules (checked by `compose-stacks validate`):
+#   - pin every image to a specific version (no :latest)
+#   - every service has a healthcheck and a restart policy
+#   - publish ports on ${BIND_ADDRESS:-127.0.0.1} unless the service must be public
+#   - read every password, token and key from .env (never hardcode values)
+#   - store data in named volumes and list them in stack.toml
+
+services:
+  app:
+    image: nginxinc/nginx-unprivileged:1.30.6-alpine
+    restart: unless-stopped
+    environment:
+      APP_SECRET: ${APP_SECRET:?set APP_SECRET in .env}
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8080}:8080"
+    volumes:
+      - app_data:/usr/share/nginx/html
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  app_data:

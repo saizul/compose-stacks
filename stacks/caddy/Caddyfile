@@ -1,0 +1,26 @@
+# Global options
+{
+	email {$ACME_EMAIL}
+	# Uncomment while testing to use the Let's Encrypt staging CA:
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# Main site: reverse proxy to an app listening on the host (127.0.0.1:8080),
+# for example the wordpress stack. Add more site blocks for more apps.
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	reverse_proxy {$UPSTREAM}
+}
+
+# Example: a second app
+# n8n.example.com {
+# 	reverse_proxy host.docker.internal:5678
+# }

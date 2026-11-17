@@ -1,0 +1,46 @@
+name = "mailpit"
+description = "Mailpit SMTP sink with a web UI and API for testing e-mail in development and staging"
+category = "email"
+tags = ["mailpit", "smtp", "email-testing", "mailhog-alternative", "development"]
+upstream_docs = "https://mailpit.axllent.org/docs/"
+maintained_by = ["saizul"]
+notes = "Point your app's SMTP settings at 127.0.0.1:1025 (or mailpit:1025 on a shared network). Any credentials are accepted."
+
+[[ports]]
+service = "mailpit"
+host = 8025
+container = 8025
+description = "Web UI and REST API"
+
+[[ports]]
+service = "mailpit"
+host = 1025
+container = 1025
+description = "SMTP"
+
+[[volumes]]
+name = "mailpit_data"
+description = "Message database"
+
+[healthcheck]
+services = ["mailpit"]
+
+[env.BIND_ADDRESS]
+description = "Interface for published ports"
+default = "127.0.0.1"
+
+[env.MAILPIT_UI_PORT]
+description = "Host port for the web UI"
+default = "8025"
+
+[env.MAILPIT_SMTP_PORT]
+description = "Host port for SMTP"
+default = "1025"
+
+[env.MP_MAX_MESSAGES]
+description = "Maximum stored messages"
+default = "5000"
+
+[env.TZ]
+description = "Time zone"
+default = "UTC"

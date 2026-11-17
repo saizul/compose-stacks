@@ -1,0 +1,32 @@
+name = "dozzle"
+description = "Dozzle real-time log viewer for all Docker containers on a host, no database needed"
+category = "management"
+tags = ["dozzle", "logs", "docker", "observability", "ui"]
+upstream_docs = "https://dozzle.dev/guide/getting-started"
+maintained_by = ["saizul"]
+notes = "Dozzle has no login by default. Keep it on 127.0.0.1 or enable its simple auth provider."
+
+[[ports]]
+service = "dozzle"
+host = 8888
+container = 8080
+description = "Web UI"
+
+[healthcheck]
+services = ["dozzle"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.DOZZLE_PORT]
+description = "Host port"
+default = "8888"
+
+[env.DOZZLE_ENABLE_ACTIONS]
+description = "Allow container actions from the UI"
+default = "false"
+
+[env.DOZZLE_HOSTNAME]
+description = "Host label shown in the UI"
+default = ""

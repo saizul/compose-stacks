@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  # Proposes image tag bumps for every stack. Review the upstream release notes
+  # before merging; CI re-validates the stack on the pull request.
+  - package-ecosystem: docker-compose
+    directories:
+      - /stacks/*
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels: ["stack update"]

@@ -1,0 +1,59 @@
+name = "grafana-prometheus"
+description = "Grafana, Prometheus and node-exporter for host metrics with a provisioned data source"
+category = "monitoring"
+tags = ["grafana", "prometheus", "node-exporter", "metrics", "observability", "dashboards"]
+upstream_docs = "https://prometheus.io/docs/guides/node-exporter/"
+maintained_by = ["saizul"]
+notes = "Import the community dashboard 1860 (Node Exporter Full) in Grafana to see host metrics right away."
+
+[[ports]]
+service = "grafana"
+host = 3000
+container = 3000
+description = "Grafana web UI"
+
+[[ports]]
+service = "prometheus"
+host = 9090
+container = 9090
+description = "Prometheus UI and API"
+
+[[volumes]]
+name = "prometheus_data"
+description = "Time-series database"
+
+[[volumes]]
+name = "grafana_data"
+description = "Grafana database, dashboards and plugins"
+
+[healthcheck]
+services = ["prometheus", "node-exporter", "grafana"]
+
+[env.BIND_ADDRESS]
+description = "Interface for published ports"
+default = "127.0.0.1"
+
+[env.GRAFANA_PORT]
+description = "Host port for Grafana"
+default = "3000"
+
+[env.PROMETHEUS_PORT]
+description = "Host port for Prometheus"
+default = "9090"
+
+[env.GRAFANA_ADMIN_USER]
+description = "Grafana admin user"
+default = "admin"
+
+[env.GRAFANA_ADMIN_PASSWORD]
+description = "Grafana admin password"
+secret = true
+generate = "alnum:24"
+
+[env.GRAFANA_ROOT_URL]
+description = "Public URL of Grafana"
+default = "http://localhost:3000/"
+
+[env.PROMETHEUS_RETENTION]
+description = "How long Prometheus keeps data"
+default = "15d"

@@ -1,0 +1,40 @@
+name = "redis"
+description = "Redis 8 with password auth, AOF persistence and a memory limit"
+category = "cache"
+tags = ["redis", "cache", "key-value", "queue"]
+upstream_docs = "https://hub.docker.com/_/redis"
+maintained_by = ["saizul"]
+
+[[ports]]
+service = "redis"
+host = 6379
+container = 6379
+description = "Redis protocol"
+
+[[volumes]]
+name = "redis_data"
+description = "AOF and RDB files"
+
+[healthcheck]
+services = ["redis"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.REDIS_PORT]
+description = "Host port"
+default = "6379"
+
+[env.REDIS_PASSWORD]
+description = "Password for the default user"
+secret = true
+generate = "hex:32"
+
+[env.REDIS_MAXMEMORY]
+description = "Memory limit"
+default = "512mb"
+
+[env.REDIS_MAXMEMORY_POLICY]
+description = "Eviction policy when the limit is reached"
+default = "noeviction"

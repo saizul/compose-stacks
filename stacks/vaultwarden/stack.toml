@@ -1,0 +1,54 @@
+name = "vaultwarden"
+description = "Vaultwarden password manager server, compatible with the official Bitwarden apps"
+category = "security"
+tags = ["vaultwarden", "bitwarden", "passwords", "password-manager", "rust"]
+upstream_docs = "https://github.com/dani-garcia/vaultwarden/wiki"
+maintained_by = ["saizul"]
+notes = "Clients only work over HTTPS. After creating your accounts set SIGNUPS_ALLOWED=false."
+
+[[ports]]
+service = "vaultwarden"
+host = 8222
+container = 80
+description = "Web vault and API (HTTP, put TLS in front)"
+
+[[volumes]]
+name = "vaultwarden_data"
+description = "SQLite database, attachments, RSA keys"
+
+[healthcheck]
+services = ["vaultwarden"]
+
+[env.BIND_ADDRESS]
+description = "Interface for the published port"
+default = "127.0.0.1"
+
+[env.VAULTWARDEN_PORT]
+description = "Host port"
+default = "8222"
+
+[env.VAULTWARDEN_DOMAIN]
+description = "Public HTTPS URL"
+default = "https://vault.example.com"
+
+[env.SIGNUPS_ALLOWED]
+description = "Allow new accounts to register"
+default = "true"
+
+[env.INVITATIONS_ALLOWED]
+description = "Allow organisation admins to invite users"
+default = "true"
+
+[env.ADMIN_TOKEN]
+description = "Token for the /admin page (replace with an Argon2 hash for production)"
+secret = true
+generate = "base64:48"
+required = false
+
+[env.LOG_LEVEL]
+description = "error, warn, info, debug or trace"
+default = "warn"
+
+[env.TZ]
+description = "Time zone"
+default = "UTC"
