@@ -33,10 +33,32 @@ def docker_compose_command() -> list[str] | None:
     return [legacy] if legacy else None
 
 
+def _fill_blanks(env_text: str) -> str:
+    """Give empty variables a harmless placeholder so required ``${VAR:?}`` values interpolate."""
+
+    lines = []
+    for line in env_text.splitlines():
+        key, sep, value = line.partition("=")
+        if sep and not line.lstrip().startswith("#") and value.strip() == "":
+            name = key.strip().removeprefix("export ").strip()
+            upper = name.upper()
+            if "EMAIL" in upper:
+                value = "admin@example.com"
+            elif "DOMAIN" in upper or "HOST" in upper:
+                value = "example.com"
+            elif "URL" in upper:
+                value = "https://example.com"
+            else:
+                value = "placeholder"
+            line = f"{key}={value}"
+        lines.append(line)
+    return "\n".join(lines) + "\n"
+
+
 def compose_config(stack: Stack, command: list[str], timeout: int = 60) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory(prefix="compose-stacks-") as tmp:
         env_path = Path(tmp) / ".env"
-        env_path.write_text(render_env(stack), encoding="utf-8")
+        env_path.write_text(_fill_blanks(render_env(stack)), encoding="utf-8")
         args = [
             *command,
             "--project-directory",
