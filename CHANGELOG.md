@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `compose-stacks outdated DIR...`: compares folders created with `init` with the library version of their
+  stack. Reports changed image tags per service (after variable interpolation), services that are new in the
+  library, services you added yourself, and variables from `.env.example` missing in your `.env`. The stack is
+  read from the copied `stack.toml` or given with `--stack`. Text and JSON output; exits `1` when anything is
+  outdated so it can run from cron or CI.
+
 ## [0.1.0] - 2026-11-17
 
 ### Added

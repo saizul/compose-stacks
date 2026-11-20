@@ -55,6 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true", help="overwrite compose.yaml and .env in the target folder")
     p.add_argument("--no-secrets", action="store_true", help="leave secret variables empty")
 
+    p = sub.add_parser("outdated", help="compare deployed stack folders with the library (image tags, new variables)")
+    p.add_argument("dirs", nargs="+", metavar="DIR", help="folders created with 'compose-stacks init'")
+    p.add_argument("-s", "--stack", help="library stack name (default: name in DIR/stack.toml, else the folder name)")
+    p.add_argument("-f", "--format", choices=["text", "json"], default="text")
+
     p = sub.add_parser("validate", help="check stacks against the library rules")
     p.add_argument("targets", nargs="*", metavar="NAME_OR_PATH", help="stack names or stack folders")
     p.add_argument("--all", action="store_true", help="validate every stack")
@@ -107,7 +112,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         print("Next: edit compose.yaml, .env.example, stack.toml and README.md, then run")
         print(f"  compose-stacks validate {args.name} --docker")
         return EXIT_OK
-    return {"list": cmd_list, "show": cmd_show, "search": cmd_search, "init": cmd_init}[command](args, catalog)
+    commands = {"list": cmd_list, "show": cmd_show, "search": cmd_search, "init": cmd_init, "outdated": cmd_outdated}
+    return commands[command](args, catalog)
 
 
 def cmd_list(args: argparse.Namespace, catalog: Catalog) -> int:
@@ -174,6 +180,14 @@ def cmd_init(args: argparse.Namespace, catalog: Catalog) -> int:
     print("  docker compose up -d")
     print("  docker compose ps   # wait until every service reports (healthy)")
     return EXIT_OK
+
+
+def cmd_outdated(args: argparse.Namespace, catalog: Catalog) -> int:
+    from compose_stacks.outdated import check_directory, render_json, render_text
+
+    reports = [check_directory(Path(d), catalog, args.stack) for d in args.dirs]
+    print(render_json(reports) if args.format == "json" else render_text(reports))
+    return EXIT_INVALID if any(r.outdated for r in reports) else EXIT_OK
 
 
 def _resolve_targets(args: argparse.Namespace) -> list[Stack]:

@@ -82,6 +82,7 @@ or [add one yourself](CONTRIBUTING.md#add-a-new-stack): it takes about 30 minute
 | `compose-stacks search <term>` | Ranked search over names, tags, categories, descriptions and images |
 | `compose-stacks show <name>` | Services, images, ports, volumes, variables and notes (`--readme`, `--compose`) |
 | `compose-stacks init <name> [dir]` | Copies the stack and writes `.env` (mode 600) with random secrets |
+| `compose-stacks outdated <dir>...` | Compares deployed folders with the library: image tag changes, new services, new `.env` variables |
 | `compose-stacks validate [name\|path\|--all]` | 30+ rules: schema, pinned tags, healthchecks, ports, secrets, optional `docker compose config` |
 | `compose-stacks new <name>` | Starts a new stack from the template (for contributors) |
 | `compose-stacks categories` / `rules` | Allowed categories and the validation rule table |
@@ -140,13 +141,29 @@ ok    caddy
 ok    dockge
 ...
 18 stack(s) checked: 0 error(s), 0 warning(s)
+
+$ compose-stacks outdated /srv/blog /srv/status
+/srv/blog (wordpress): outdated
+  wordpress: wordpress:7.1.3-php8.4-apache -> wordpress:7.1.4-php8.4-apache
+  .env is missing: WORDPRESS_MEMORY_LIMIT (see .env.example in the library)
+/srv/status (uptime-kuma): up to date
 ```
+
+`outdated` finds the library stack from the `stack.toml` that `init` copies into
+the folder (or `--stack NAME`), compares the image of every service after
+variable interpolation, and lists variables from the library's `.env.example`
+that your `.env` lacks. Services you added yourself are shown but do not count
+as outdated. It never changes files: update the tags, read the upstream
+release notes, then `docker compose pull && docker compose up -d`. It exits
+with `1` when something is outdated, so a cron job or CI step can alert you
+after `pip install -U compose-stacks`.
 
 Useful flags:
 
 | Flag | Command | Meaning |
 | --- | --- | --- |
-| `-f json` | list, show, search, validate | Machine-readable output |
+| `-f json` | list, show, search, validate, outdated | Machine-readable output |
+| `--stack NAME` | outdated | Library stack to compare with when the folder has no `stack.toml` |
 | `-f names` | list | One name per line (for scripts) |
 | `--set NAME=VALUE` | init | Override any variable (repeatable) |
 | `--force` | init | Overwrite `compose.yaml` and `.env` in the target |
@@ -156,7 +173,7 @@ Useful flags:
 | `-f github` | validate | GitHub Actions annotations |
 | `-v` | validate | Show hints and info messages |
 
-Exit codes: `0` success, `1` validation failed (or no search results), `2` usage error.
+Exit codes: `0` success, `1` validation failed (or no search results, or `outdated` found changes), `2` usage error.
 
 ## Configuration
 
@@ -247,7 +264,7 @@ Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Roadmap
 
-- `compose-stacks update <dir>`: show tag changes between a deployed stack and the library
+- `compose-stacks update <dir>`: apply the changes `outdated` reports (with a preview diff)
 - `compose-stacks diff <name> <dir>`: compare a deployed folder with the library version
 - Optional Traefik labels and Caddy snippets generated per stack
 - Scheduled CI job that checks pinned tags against the registries
